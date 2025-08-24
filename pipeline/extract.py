@@ -56,11 +56,11 @@ def ingest_files_sharepoint(site_name, folder_path):
             file_resp = requests.get(download_url)
             if file_resp.status_code == 200:
                 pdf_files.append({
-                    "folder": folder_name,      # em qual ano estava
-                    "file_name": file_name,     # nome do arquivo
-                    "content": file_resp.content  # conteúdo em bytes
+                    "folder": folder_name,
+                    "file_name": file_name,
+                    "content": file_resp.content 
                 })
             else:
                 print(f"Erro ao baixar {file_name}: {file_resp.status_code}")
 
-    return pdf_files[0]
+    return pdf_files[60:62]
