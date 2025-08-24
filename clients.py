@@ -20,9 +20,12 @@ def get_access_token():
     }
 
     response = requests.post(token_url, data=data)
+    response_json = response.json()
 
-    access_token = response.json()['access_token']
+    if "access_token" not in response_json:
+        raise Exception(f"Erro ao obter token: {response_json}")
 
+    access_token = response_json["access_token"]
     return access_token
 
 # Client Supabase
