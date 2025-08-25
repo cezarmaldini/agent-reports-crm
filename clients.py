@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
 import requests
+from supabase import create_client, Client
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -29,3 +30,10 @@ def get_access_token():
     return access_token
 
 # Client Supabase
+def new_supabase_client():
+    SUPABASE_URL = os.getenv('SUPABASE_URL')
+    SUPABASE_API_KEY = os.getenv('SUPABASE_API_KEY')
+
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_URL)
+
+    return supabase
