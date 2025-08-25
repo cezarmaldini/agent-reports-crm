@@ -63,4 +63,4 @@ def ingest_files_sharepoint(site_name, folder_path):
             else:
                 print(f"Erro ao baixar {file_name}: {file_resp.status_code}")
 
-    return pdf_files[60:62]
+    return pdf_files[:10]
