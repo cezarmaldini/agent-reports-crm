@@ -1,10 +1,7 @@
 import os
 import requests
-from dotenv import load_dotenv
 
 import clients
-
-load_dotenv()
 
 def ingest_files_sharepoint(site_name, folder_path):
     access_token = clients.get_access_token()
@@ -63,4 +60,4 @@ def ingest_files_sharepoint(site_name, folder_path):
             else:
                 print(f"Erro ao baixar {file_name}: {file_resp.status_code}")
 
-    return pdf_files[:3]
+    return pdf_files[:1]

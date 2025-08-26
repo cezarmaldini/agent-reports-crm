@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from pipeline import extract, transform
+from pipeline import extract, transform, ingest
 
 load_dotenv()
 
@@ -11,10 +11,7 @@ def main():
     FOLDER_SHAREPOINT = os.getenv('FOLDER_SHAREPOINT')
 
     print('Buscando arquivos no sharepoint...')
-    files = extract.ingest_files_sharepoint(
-        site_name=SITE_SHAREPOINT,
-        folder_path=FOLDER_SHAREPOINT
-    )
+    files = extract.ingest_files_sharepoint(site_name=SITE_SHAREPOINT,folder_path=FOLDER_SHAREPOINT)
 
     print('Salvando imagens...')
     images = Path("images")
@@ -28,6 +25,9 @@ def main():
     
     print('Gerando arquivos markdowns...')
     transform.images_to_markdown(images_dir=images, output_dir='markdown')
+
+    print('Salvando arquivos no VectorDB...')
+    ingest.run_ingest_all()
     
     print('Processo concluído!')
 
