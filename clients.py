@@ -31,9 +31,9 @@ def get_access_token():
 
 # Client Supabase
 def new_supabase_client():
-    SUPABASE_URL = os.getenv('SUPABASE_URL')
-    SUPABASE_API_KEY = os.getenv('SUPABASE_API_KEY')
-
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_URL)
+    url: str = os.environ.get("SUPABASE_URL")
+    key: str = os.environ.get("SUPABASE_KEY")
+    
+    supabase: Client = create_client(url, key)
 
     return supabase
