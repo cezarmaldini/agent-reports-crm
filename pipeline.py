@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from pipeline import extract, transform, ingest
+from pipeline import extract, transform, ingest, upload_bucket
 
 load_dotenv()
 
@@ -27,8 +27,22 @@ def main():
     transform.images_to_markdown(images_dir=images, output_dir='markdown')
 
     print('Salvando arquivos no VectorDB...')
-    ingest.run_ingest_all()
-    
+    files_process = ingest.run_ingest_all()
+
+    for file_name in files_process:
+        path = os.path.join('markdown', file_name)
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            sanitized_name = upload_bucket.sanitize_filename(file_name)
+            upload_bucket.upload_files_to_bucket(file_name=sanitized_name, markdown_content=content)
+
+        except FileNotFoundError:
+            print(f"❌ Arquivo não encontrado: {file_name}")
+        except Exception as e:
+            print(f"❌ Erro ao processar {file_name}: {e}")
+
     print('Processo concluído!')
 
 if __name__ == "__main__":

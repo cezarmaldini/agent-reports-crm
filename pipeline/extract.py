@@ -1,10 +1,10 @@
 import os
 import requests
 
-import clients
+from clients import get_access_token
 
 def ingest_files_sharepoint(site_name, folder_path):
-    access_token = clients.get_access_token()
+    access_token = get_access_token()
 
     response_site = requests.get(
         f'https://graph.microsoft.com/v1.0/sites/taticogestao.sharepoint.com:/sites/{site_name}',
@@ -60,4 +60,4 @@ def ingest_files_sharepoint(site_name, folder_path):
             else:
                 print(f"Erro ao baixar {file_name}: {file_resp.status_code}")
 
-    return pdf_files[:1]
+    return pdf_files[:10]

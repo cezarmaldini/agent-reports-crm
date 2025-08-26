@@ -1,8 +1,8 @@
 import os
 import uuid
-import json
-import logging
+import pandas as pd
 from typing import List, Dict, Any
+from datetime import datetime
 
 from docling.document_converter import DocumentConverter
 from docling.chunking import HybridChunker
@@ -10,7 +10,7 @@ from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTok
 from transformers import AutoTokenizer
 from fastembed import TextEmbedding
 
-import clients
+from clients import new_supabase_client
 
 from dotenv import load_dotenv
 
@@ -65,28 +65,43 @@ def build_records(file_name: str, chunks: List[Dict[str, Any]], embeddings: List
         records.append(record)
     return records
 
-def insert_records(records: List[Dict[str, Any]], table_name: str = "documents"):
-    supabase = clients.new_supabase_client()
+def insert_records(records: List[Dict[str, Any]], table_name: str = "reports_crm"):
+    supabase = new_supabase_client()
     result = supabase.table(table_name).insert(records).execute()
     return result
 
 def ingest_files(folder: str, model_name: str, max_tokens: int = 512):
     files = list_files(folder)
 
+    files_process = []
+
     for file in files:
+        file_name = os.path.basename(file)
+        files_process.append(file_name)
+
         doc = convert_doc(file)
         chunks = create_document_chunks(doc, model_name, max_tokens)
         embeddings = create_embeddings(chunks, model_name)
-        records = build_records(os.path.basename(file), chunks, embeddings)
+        records = build_records(file_name, chunks, embeddings)
         insert_records(records=records)
 
-    return
+    return files_process
 
 def run_ingest_all():
 
     FOLDER = 'markdown'
     EMBED_MODEL_ID = 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2'
 
-    ingestor = ingest_files(folder=FOLDER, model_name=EMBED_MODEL_ID)
+    date_process = datetime.today().strftime('%Y-%m-%d')
 
-    return ingestor
+    files = ingest_files(folder=FOLDER, model_name=EMBED_MODEL_ID)
+
+    columns = ['file_name']
+
+    df = pd.DataFrame(files, columns=columns)
+
+    df['date_process'] = date_process
+
+    df.to_csv('data/files_process.csv', index=False)
+
+    return files
