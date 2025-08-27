@@ -1,20 +1,12 @@
 import os
 from typing import List, Dict, Any, Tuple
 from fastembed import TextEmbedding
-from supabase import Client, create_client
+from clients import new_supabase_client
 
 EMBED_MODEL_ID = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 
 _embedder = TextEmbedding(EMBED_MODEL_ID)
-def teste_supabase_client():
-    url: str = 'https://xslduglkbnzpatdtpnav.supabase.co'
-    key: str = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzbGR1Z2xrYm56cGF0ZHRwbmF2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzE5MzU4NywiZXhwIjoyMDY4NzY5NTg3fQ.w3ni7nwJx9yBtCbvzsLgUmuh8IScMrMEStZ3SDzDrQk'
-    
-    supabase: Client = create_client(url, key)
-
-    return supabase
-
-_supabase = teste_supabase_client()
+_supabase = new_supabase_client()
 
 def _embed(text: str) -> List[float]:
     return list(_embedder.passage_embed([text]))[0].tolist()
