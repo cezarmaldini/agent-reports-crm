@@ -7,10 +7,12 @@ from typing import List
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIModel
 from openai import AsyncOpenAI
+from fastembed.embedding import TextEmbedding
 from supabase import Client
 
+from prompts import SYSTEM_PROMPT
+
 from clients import new_supabase_client
-from fastembed.embedding import TextEmbedding
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -29,49 +31,37 @@ class CRMAgentDeps:
     supabase: Client
     openai_client: AsyncOpenAI
 
-# Prompt do sistema
-system_prompt = """
-Você é um especialista em análise de relatórios CRM.
-Sua função é:
-- Interpretar dados de relatórios mensais de CRM (negociações, vendas, tarefas, funil, motivos de perda, metas etc.)
-- Gerar insights estratégicos
-- Identificar gargalos no processo comercial
-- Sugerir oportunidades de melhoria e recomendações práticas
-
-Use sempre os relatórios armazenados no Supabase como base para sua resposta.
-Se não encontrar informação suficiente, seja honesto e diga isso.
-"""
-
 # Criar o agente
 crm_expert_agent = Agent(
     model,
-    system_prompt=system_prompt,
+    system_prompt=SYSTEM_PROMPT,
     deps_type=CRMAgentDeps,
     retries=2
 )
 
-# Função utilitária para gerar embeddings de consultas
-def get_embedding(text: str) -> List[float]:
+# Gerar os embeddings de consultas
+def get_embedding(text: str, embedding_model_id: str) -> List[float]:
     try:
+        embedding_model = TextEmbedding(embedding_model_id)
         embeddings = list(embedding_model.passage_embed([text]))
         return embeddings[0].tolist()
     except Exception as e:
         print(f"Erro ao gerar embedding: {e}")
         return [0] * 768
 
-# Ferramenta RAG: busca relatórios relevantes
+# Ferramenta que executa o RAG
 @crm_expert_agent.tool
-async def retrieve_relevant_reports(ctx: RunContext[CRMAgentDeps], user_query: str) -> str:
+async def retrieve_relevant_reports(ctx: RunContext[CRMAgentDeps], user_query: str, embedding_model_id: str) -> str:
     """
     Recupera os trechos mais relevantes de relatórios CRM para responder a uma query.
     """
     try:
         # Gerar embedding da query
-        query_embedding = get_embedding(user_query)
+        query_embedding = get_embedding(user_query, embedding_model_id)
 
         # Buscar no Supabase os chunks mais relevantes
         result = ctx.deps.supabase.rpc(
-            "match_reports_crm",  # sua função de similaridade no banco
+            "match_reports_crm",
             {
                 "query_embedding": query_embedding,
                 "match_count": 5
@@ -96,7 +86,6 @@ async def retrieve_relevant_reports(ctx: RunContext[CRMAgentDeps], user_query: s
     except Exception as e:
         print(f"Erro ao buscar relatórios: {e}")
         return f"Erro: {str(e)}"
-
 
 # Inicialização das dependências (exemplo)
 def init_deps() -> CRMAgentDeps:
