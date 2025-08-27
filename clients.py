@@ -1,6 +1,7 @@
 import os
 import requests
 from supabase import create_client, Client
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,3 +38,11 @@ def new_supabase_client():
     supabase: Client = create_client(url, key)
 
     return supabase
+
+# Cliente OpenAI
+def new_client_openai():
+    openai_api_key: str = os.environ.get('OPENAI_API_KEY')
+
+    openai_client = AsyncOpenAI(api_key=openai_api_key)
+
+    return openai_client
