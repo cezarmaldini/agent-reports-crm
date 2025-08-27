@@ -29,6 +29,7 @@ def main():
     print('Salvando arquivos no VectorDB...')
     files_process = ingest.run_ingest_all()
 
+    print('Upload dos arquivos no bucket...')
     for file_name in files_process:
         path = os.path.join('markdown', file_name)
         try:

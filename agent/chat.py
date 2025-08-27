@@ -7,7 +7,7 @@ from rag import make_inference
 load_dotenv()
 
 llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-resposta, fontes = make_inference("Faça um resumo do documento", llm_client=llm, k=3, model_name="gpt-4o-mini")
+resposta, fontes = make_inference("Há algum serviço de concretagem no banco de dados?", llm_client=llm, k=3, model_name="gpt-4o-mini")
 
 print("Resposta:", resposta)
 for f in fontes:

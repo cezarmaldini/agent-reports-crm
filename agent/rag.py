@@ -1,19 +1,27 @@
 import os
 from typing import List, Dict, Any, Tuple
 from fastembed import TextEmbedding
-import clients
+from supabase import Client, create_client
 
 EMBED_MODEL_ID = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 
 _embedder = TextEmbedding(EMBED_MODEL_ID)
-_supabase = clients.new_supabase_client()
+def teste_supabase_client():
+    url: str = 'https://xslduglkbnzpatdtpnav.supabase.co'
+    key: str = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzbGR1Z2xrYm56cGF0ZHRwbmF2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzE5MzU4NywiZXhwIjoyMDY4NzY5NTg3fQ.w3ni7nwJx9yBtCbvzsLgUmuh8IScMrMEStZ3SDzDrQk'
+    
+    supabase: Client = create_client(url, key)
+
+    return supabase
+
+_supabase = teste_supabase_client()
 
 def _embed(text: str) -> List[float]:
     return list(_embedder.passage_embed([text]))[0].tolist()
 
 def retrieve(query: str, k: int = 3) -> List[Dict[str, Any]]:
     vec = _embed(query)
-    res = _supabase.rpc("match_reports_crm", {"query_embedding": vec, "match_count": k}).execute()
+    res = _supabase.rpc("match_documents_propostas", {"query_embedding": vec, "match_count": k}).execute()
     return res.data or []
 
 def make_inference(query: str, llm_client, k: int = 3,

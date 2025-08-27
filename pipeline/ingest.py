@@ -70,7 +70,7 @@ def insert_records(records: List[Dict[str, Any]], table_name: str = "reports_crm
     result = supabase.table(table_name).insert(records).execute()
     return result
 
-def ingest_files(folder: str, model_name: str, max_tokens: int = 512):
+def ingest_files(folder: str, model_name: str, max_tokens: int = 768):
     files = list_files(folder)
 
     files_process = []
