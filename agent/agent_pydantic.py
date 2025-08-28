@@ -37,7 +37,7 @@ Se não encontrar informação suficiente, seja honesto e diga isso.
 
 # Criar o agente
 crm_expert_agent = Agent(
-    model,
+    model=model,
     system_prompt=SYSTEM_PROMPT,
     deps_type=CRMAgentDeps,
     retries=2
